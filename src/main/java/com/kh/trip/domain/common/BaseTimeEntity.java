@@ -2,6 +2,7 @@ package com.kh.trip.domain.common;
 
 import java.time.LocalDateTime;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.MappedSuperclass;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
@@ -11,8 +12,10 @@ import lombok.Getter;
 @MappedSuperclass
 public abstract class BaseTimeEntity {
 
+	@Column(name="REG_DATE")
 	private LocalDateTime regDate;
 
+	@Column(name="UPD_DATE")
 	private LocalDateTime updDate;
 
 	@PrePersist

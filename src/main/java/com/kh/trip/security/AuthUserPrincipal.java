@@ -27,6 +27,9 @@ public class AuthUserPrincipal implements UserDetails {
 	private String enabled;
 	private List<String> roleNames;
 
+	public String getUserName() {
+	    return userName;
+	}
 	// JWT 생성 시 사용할 사용자 정보를 claims 형태로 반환한다.
 	public Map<String, Object> getClaims() {
 		Map<String, Object> claims = new HashMap<>();

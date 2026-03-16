@@ -10,9 +10,9 @@
 		<relativePath /> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.kh.trip</groupId>
-	<artifactId>TripZoneProject</artifactId>
+	<artifactId>TripZoneProjectHome</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>TripZoneProject</name>
+	<name>TripZoneProjectHome</name>
 	<description>Demo project for Spring Boot</description>
 	<url />
 	<licenses>
