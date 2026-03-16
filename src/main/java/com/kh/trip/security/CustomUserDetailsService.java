@@ -26,6 +26,7 @@ public class CustomUserDetailsService implements UserDetailsService {
 
 	@Override
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+		System.out.println("username = [" + username + "]");
 		// loginId로 인증 수단 정보를 조회한다.
 		UserAuthProvider authProvider = userAuthProviderRepository.findByLoginId(username)
 				.orElseThrow(() -> new UsernameNotFoundException("LoginId Not Found"));
@@ -44,5 +45,7 @@ public class CustomUserDetailsService implements UserDetailsService {
 		return new AuthUserPrincipal(user.getUserNo(), authProvider.getLoginId(), authProvider.getPasswordHash(),
 				user.getUserName(), user.getEmail(), user.getPhone(), user.getEnabled(), roleNames);
 	}
+	
+	
 
 }

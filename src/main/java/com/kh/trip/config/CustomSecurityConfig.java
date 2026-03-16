@@ -7,9 +7,16 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+
+import com.kh.trip.security.JwtAuthenticationFilter;
+
+import lombok.RequiredArgsConstructor;
 
 @Configuration
+@RequiredArgsConstructor
 public class CustomSecurityConfig {
+	private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
 	@Bean
 	SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -23,14 +30,11 @@ public class CustomSecurityConfig {
 				.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 				.authorizeHttpRequests(auth -> auth
 						// 로그인/로그아웃/재발급 경로는 인증 없이 접근 가능하다.
-						.requestMatchers("/", "/error", "/api/auth/login", "/api/auth/logout", "/api/auth/refresh")
+						.requestMatchers("/", "/error","/api/auth/register", "/api/auth/login", "/api/auth/logout", "/api/auth/refresh")
 						.permitAll()
 						// JWT 필터 적용 전이므로 현재는 전체 요청을 임시 허용한다.
-						.anyRequest().permitAll())
-				.formLogin(config -> {
-					// 스프링 시큐리티가 로그인 요청을 처리할 URL을 지정한다.
-					config.loginProcessingUrl("/api/auth/login");
-				});
+						.anyRequest().authenticated())
+				.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
 		return http.build();
 	}
