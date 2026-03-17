@@ -1,4 +1,4 @@
-package com.kh.trip.dto.auth;
+package com.kh.trip.dto.auth.social;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;

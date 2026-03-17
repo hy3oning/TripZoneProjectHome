@@ -1,4 +1,4 @@
-package com.kh.trip.security;
+package com.kh.trip.security.social;
 
 import lombok.Getter;
 import lombok.Setter;

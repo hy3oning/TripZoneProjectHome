@@ -1,12 +1,12 @@
 package com.kh.trip.service.auth;
 
-import com.kh.trip.dto.auth.GoogleLoginRequestDTO;
 import com.kh.trip.dto.auth.LoginRequestDTO;
 import com.kh.trip.dto.auth.LoginResponseDTO;
 import com.kh.trip.dto.auth.LogoutRequestDTO;
 import com.kh.trip.dto.auth.RefreshTokenRequestDTO;
 import com.kh.trip.dto.auth.RegisterRequestDTO;
 import com.kh.trip.dto.auth.TokenRefreshResponseDTO;
+import com.kh.trip.dto.auth.social.GoogleLoginRequestDTO;
 
 public interface AuthService {
 

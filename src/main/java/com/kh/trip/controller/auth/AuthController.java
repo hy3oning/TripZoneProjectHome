@@ -7,13 +7,13 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.kh.trip.dto.auth.GoogleLoginRequestDTO;
 import com.kh.trip.dto.auth.LoginRequestDTO;
 import com.kh.trip.dto.auth.LoginResponseDTO;
 import com.kh.trip.dto.auth.LogoutRequestDTO;
 import com.kh.trip.dto.auth.RefreshTokenRequestDTO;
 import com.kh.trip.dto.auth.RegisterRequestDTO;
 import com.kh.trip.dto.auth.TokenRefreshResponseDTO;
+import com.kh.trip.dto.auth.social.GoogleLoginRequestDTO;
 import com.kh.trip.service.auth.AuthService;
 
 import jakarta.validation.Valid;
