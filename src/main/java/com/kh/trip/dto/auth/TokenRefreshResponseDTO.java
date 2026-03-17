@@ -9,5 +9,5 @@ public class TokenRefreshResponseDTO {
 
 	private String grantType;
 	private String accessToken;
-	private Long accessTokenExpiresin;
+	private Long accessTokenExpiresIn;
 }

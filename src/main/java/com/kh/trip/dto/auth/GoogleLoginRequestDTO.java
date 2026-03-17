@@ -6,8 +6,8 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class RefreshTokenRequestDTO {
+public class GoogleLoginRequestDTO {
 
-	@NotBlank(message = "refreshToken is required")
-	private String refreshToken;
+	@NotBlank(message = "idToken is required")
+	private String idToken;
 }

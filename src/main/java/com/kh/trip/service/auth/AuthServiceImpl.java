@@ -1,6 +1,7 @@
 package com.kh.trip.service.auth;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -11,8 +12,10 @@ import com.kh.trip.domain.User;
 import com.kh.trip.domain.UserAuthProvider;
 import com.kh.trip.domain.UserRefreshToken;
 import com.kh.trip.domain.UserRole;
+import com.kh.trip.dto.auth.GoogleLoginRequestDTO;
 import com.kh.trip.dto.auth.LoginRequestDTO;
 import com.kh.trip.dto.auth.LoginResponseDTO;
+import com.kh.trip.dto.auth.LogoutRequestDTO;
 import com.kh.trip.dto.auth.RefreshTokenRequestDTO;
 import com.kh.trip.dto.auth.RegisterRequestDTO;
 import com.kh.trip.dto.auth.TokenRefreshResponseDTO;
@@ -22,6 +25,8 @@ import com.kh.trip.repository.UserRepository;
 import com.kh.trip.repository.UserRoleRepository;
 import com.kh.trip.security.AuthUserPrincipal;
 import com.kh.trip.security.CustomUserDetailsService;
+import com.kh.trip.security.GoogleTokenVerifier;
+import com.kh.trip.security.GoogleUserInfo;
 import com.kh.trip.security.JwtProvider;
 
 import jakarta.transaction.Transactional;
@@ -52,9 +57,15 @@ public class AuthServiceImpl implements AuthService {
 	// refresh token을 DB에 저장/조회하는 repository
 	private final UserRefreshTokenRepository userRefreshTokenRepository;
 
+	private final GoogleTokenVerifier googleTokenVerifier;
+
 	// refresh token 만료 시간(초)
 	@Value("${jwt.refresh-token-expiration}")
 	private long refreshTokenExpiration;
+
+	// access token 만료 시간(초)
+	@Value("${jwt.access-token-expiration}")
+	private long accessTokenExpiration;
 
 	@Override
 	@Transactional
@@ -116,6 +127,7 @@ public class AuthServiceImpl implements AuthService {
 
 		// 로그인 성공 응답 데이터 반환
 		return LoginResponseDTO.builder().grantType("Bearer").accessToken(accessToken).refreshToken(refreshToken)
+				.accessTokenExpiresIn(accessTokenExpiration).refreshTokenExpiresIn(refreshTokenExpiration)
 				.userNo(authUser.getUserNo()).loginId(authUser.getLoginId()).userName(authUser.getUserName())
 				.roleNames(authUser.getRoleNames()).build();
 	}
@@ -155,6 +167,92 @@ public class AuthServiceImpl implements AuthService {
 		String newAccessToken = jwtProvider.generateAccessToken(authUser);
 
 		// 새 access token만 응답한다.
-		return TokenRefreshResponseDTO.builder().grantType("Bearer").accessToken(newAccessToken).build();
+		return TokenRefreshResponseDTO.builder().grantType("Bearer").accessToken(newAccessToken)
+				.accessTokenExpiresIn(accessTokenExpiration).build();
 	}
+
+	@Override
+	public void logout(LogoutRequestDTO request) {
+		// 요청에서 refresh token 추출
+		String refreshToken = request.getRefreshToken();
+		// refresh token 형식이 올바른지 먼저 확인
+		if (!jwtProvider.validateToken(refreshToken)) {
+			throw new RuntimeException("Invalid refresh token");
+		}
+		// DB에 저장된 refresh token 조회
+		UserRefreshToken savedToken = userRefreshTokenRepository.findByTokenValue(refreshToken)
+				.orElseThrow(() -> new RuntimeException("Refresh token not found"));
+		// 토큰 안의 사용자 번호와 DB 저장 사용자가 다르면 처리하지 않음
+		if (!savedToken.getUserNo().equals(jwtProvider.getUserNo(refreshToken))) {
+			throw new RuntimeException("Refresh token owner mismatch");
+		}
+		// 이미 폐기된 토큰이면 다시 처리하지 않음
+		if ("1".equals(savedToken.getRevokedYn())) {
+			throw new RuntimeException("Refresh token already revoked");
+		}
+		// refresh token 폐기 처리
+		savedToken.revoke();
+
+		// 변경 내용 저장
+		userRefreshTokenRepository.save(savedToken);
+	}
+
+	@Override
+	@Transactional
+	public LoginResponseDTO googleLogin(GoogleLoginRequestDTO request) {
+
+		// 구글 idToken 검증 후 사용자 정보 추출
+		GoogleUserInfo googleUser = googleTokenVerifier.verify(request.getIdToken());
+
+		Optional<UserAuthProvider> authProviderOpt = userAuthProviderRepository
+				.findByProviderCodeAndProviderUserId("GOOGLE", googleUser.getProviderUserId());
+
+		Long userNo;
+
+		if (authProviderOpt.isPresent()) {
+			userNo = authProviderOpt.get().getUserNo();
+		} else {
+			if (userRepository.existsByEmail(googleUser.getEmail())) {
+				throw new RuntimeException("Email already exists");
+			}
+
+			User newUser = User.builder().userName(googleUser.getUserName()).email(googleUser.getEmail())
+					.phone("SOCIAL").enabled("1").build();
+
+			User savedUser = userRepository.save(newUser);
+
+			UserAuthProvider authProvider = UserAuthProvider.builder().userNo(savedUser.getUserNo())
+					.providerCode("GOOGLE").providerUserId(googleUser.getProviderUserId()).build();
+
+			userAuthProviderRepository.save(authProvider);
+
+			UserRole userRole = UserRole.builder().userNo(savedUser.getUserNo()).roleCode("ROLE_USER").build();
+
+			userRoleRepository.save(userRole);
+
+			userNo = savedUser.getUserNo();
+		}
+
+		User user = userRepository.findById(userNo).orElseThrow(() -> new RuntimeException("User not found"));
+
+		var roles = userRoleRepository.findByUserNo(userNo);
+		var roleNames = roles.stream().map(UserRole::getRoleCode).toList();
+
+		AuthUserPrincipal authUser = new AuthUserPrincipal(user.getUserNo(), googleUser.getEmail(), "",
+				user.getUserName(), user.getEmail(), user.getPhone(), user.getEnabled(), roleNames);
+
+		String accessToken = jwtProvider.generateAccessToken(authUser);
+		String refreshToken = jwtProvider.generateRefreshToken(authUser);
+
+		UserRefreshToken userRefreshToken = UserRefreshToken.builder().userNo(authUser.getUserNo())
+				.tokenValue(refreshToken).expiresAt(LocalDateTime.now().plusSeconds(refreshTokenExpiration)).build();
+
+		userRefreshTokenRepository.save(userRefreshToken);
+
+		return LoginResponseDTO.builder().grantType("Bearer").accessToken(accessToken).refreshToken(refreshToken)
+				.accessTokenExpiresIn(accessTokenExpiration).refreshTokenExpiresIn(refreshTokenExpiration)
+				.userNo(authUser.getUserNo()).loginId(authUser.getLoginId()).userName(authUser.getUserName())
+				.roleNames(authUser.getRoleNames()).build();
+	}
+
 }

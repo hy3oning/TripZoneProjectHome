@@ -6,7 +6,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class RefreshTokenRequestDTO {
+public class LogoutRequestDTO {
 
 	@NotBlank(message = "refreshToken is required")
 	private String refreshToken;

@@ -7,13 +7,16 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.kh.trip.dto.auth.GoogleLoginRequestDTO;
 import com.kh.trip.dto.auth.LoginRequestDTO;
 import com.kh.trip.dto.auth.LoginResponseDTO;
+import com.kh.trip.dto.auth.LogoutRequestDTO;
 import com.kh.trip.dto.auth.RefreshTokenRequestDTO;
 import com.kh.trip.dto.auth.RegisterRequestDTO;
 import com.kh.trip.dto.auth.TokenRefreshResponseDTO;
 import com.kh.trip.service.auth.AuthService;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -25,7 +28,7 @@ public class AuthController {
 	private final AuthService authService;
 
 	@PostMapping("/register")
-	public Map<String, String> register(@RequestBody RegisterRequestDTO request) {
+	public Map<String, String> register(@Valid @RequestBody RegisterRequestDTO request) {
 
 		// 회원가입 요청 데이터를 service로 넘긴다.
 		authService.register(request);
@@ -35,16 +38,27 @@ public class AuthController {
 	}
 
 	@PostMapping("/login")
-	public LoginResponseDTO login(@RequestBody LoginRequestDTO request) {
+	public LoginResponseDTO login(@Valid @RequestBody LoginRequestDTO request) {
 		// loginId, password를 service로 넘겨 로그인 처리한다.
 		// 성공하면 access token, refresh token 등을 응답한다.
 		return authService.login(request);
 	}
 
+	@PostMapping("/logout")
+	public Map<String, String> logout(@Valid @RequestBody LogoutRequestDTO request) {
+		authService.logout(request);
+		return Map.of("msg", "logout success");
+	}
+
 	@PostMapping("/refresh")
-	public TokenRefreshResponseDTO refresh(@RequestBody RefreshTokenRequestDTO request) {
+	public TokenRefreshResponseDTO refresh(@Valid @RequestBody RefreshTokenRequestDTO request) {
 		// refresh token을 service로 넘겨 새 access token 발급을 요청한다.
 		return authService.refresh(request);
+	}
+
+	@PostMapping("/google")
+	public LoginResponseDTO googleLogin(@Valid @RequestBody GoogleLoginRequestDTO request) {
+		return authService.googleLogin(request);
 	}
 
 }
