@@ -14,6 +14,8 @@ import com.kh.trip.dto.auth.RefreshTokenRequestDTO;
 import com.kh.trip.dto.auth.RegisterRequestDTO;
 import com.kh.trip.dto.auth.TokenRefreshResponseDTO;
 import com.kh.trip.dto.auth.social.GoogleLoginRequestDTO;
+import com.kh.trip.dto.auth.social.KakaoLoginRequestDTO;
+import com.kh.trip.dto.auth.social.NaverLoginRequestDTO;
 import com.kh.trip.service.auth.AuthService;
 
 import jakarta.validation.Valid;
@@ -59,6 +61,16 @@ public class AuthController {
 	@PostMapping("/google")
 	public LoginResponseDTO googleLogin(@Valid @RequestBody GoogleLoginRequestDTO request) {
 		return authService.googleLogin(request);
+	}
+
+	@PostMapping("/kakao")
+	public LoginResponseDTO kakaoLogin(@Valid @RequestBody KakaoLoginRequestDTO request) {
+		return authService.kakaoLogin(request);
+	}
+
+	@PostMapping("/naver")
+	public LoginResponseDTO naverLogin(@Valid @RequestBody NaverLoginRequestDTO request) {
+		return authService.naverLogin(request);
 	}
 
 }

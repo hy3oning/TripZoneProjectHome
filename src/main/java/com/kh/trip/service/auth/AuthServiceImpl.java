@@ -19,6 +19,8 @@ import com.kh.trip.dto.auth.RefreshTokenRequestDTO;
 import com.kh.trip.dto.auth.RegisterRequestDTO;
 import com.kh.trip.dto.auth.TokenRefreshResponseDTO;
 import com.kh.trip.dto.auth.social.GoogleLoginRequestDTO;
+import com.kh.trip.dto.auth.social.KakaoLoginRequestDTO;
+import com.kh.trip.dto.auth.social.NaverLoginRequestDTO;
 import com.kh.trip.repository.UserAuthProviderRepository;
 import com.kh.trip.repository.UserRefreshTokenRepository;
 import com.kh.trip.repository.UserRepository;
@@ -27,7 +29,7 @@ import com.kh.trip.security.AuthUserPrincipal;
 import com.kh.trip.security.CustomUserDetailsService;
 import com.kh.trip.security.JwtProvider;
 import com.kh.trip.security.social.GoogleTokenVerifier;
-import com.kh.trip.security.social.GoogleUserInfo;
+import com.kh.trip.security.social.SocialUserInfo;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -135,38 +137,29 @@ public class AuthServiceImpl implements AuthService {
 	@Override
 	public TokenRefreshResponseDTO refresh(RefreshTokenRequestDTO request) {
 
-		// 요청에서 refresh token을 꺼낸다.
 		String refreshToken = request.getRefreshToken();
 
-		// 토큰이 정상인지 먼저 확인한다.
 		if (!jwtProvider.validateToken(refreshToken)) {
 			throw new RuntimeException("Invalid refresh token");
 		}
 
-		// DB에 저장된 refresh token인지 확인한다.
 		UserRefreshToken savedToken = userRefreshTokenRepository.findByTokenValue(refreshToken)
 				.orElseThrow(() -> new RuntimeException("Refresh token not found"));
 
-		// 이미 로그아웃 등으로 폐기된 토큰이면 재발급 불가
 		if ("1".equals(savedToken.getRevokedYn())) {
 			throw new RuntimeException("Refresh token revoked");
 		}
 
-		// DB 기준으로 만료 시간이 지났으면 재발급 불가
 		if (savedToken.getExpiresAt().isBefore(LocalDateTime.now())) {
 			throw new RuntimeException("Refresh token expired");
 		}
 
-		// refresh token 안에 저장된 loginId를 꺼낸다.
-		String loginId = jwtProvider.getLoginId(refreshToken);
+		Long userNo = jwtProvider.getUserNo(refreshToken);
 
-		// loginId로 사용자 인증 정보를 다시 조회한다.
-		AuthUserPrincipal authUser = (AuthUserPrincipal) customUserDetailsService.loadUserByUsername(loginId);
+		AuthUserPrincipal authUser = customUserDetailsService.loadUserByUserNo(userNo);
 
-		// 새 access token 생성
 		String newAccessToken = jwtProvider.generateAccessToken(authUser);
 
-		// 새 access token만 응답한다.
 		return TokenRefreshResponseDTO.builder().grantType("Bearer").accessToken(newAccessToken)
 				.accessTokenExpiresIn(accessTokenExpiration).build();
 	}
@@ -197,32 +190,27 @@ public class AuthServiceImpl implements AuthService {
 		userRefreshTokenRepository.save(savedToken);
 	}
 
-	@Override
-	@Transactional
-	public LoginResponseDTO googleLogin(GoogleLoginRequestDTO request) {
-
-		// 구글 idToken 검증 후 사용자 정보 추출
-		GoogleUserInfo googleUser = googleTokenVerifier.verify(request.getIdToken());
+	private LoginResponseDTO socialLogin(SocialUserInfo socialUser) {
 
 		Optional<UserAuthProvider> authProviderOpt = userAuthProviderRepository
-				.findByProviderCodeAndProviderUserId("GOOGLE", googleUser.getProviderUserId());
+				.findByProviderCodeAndProviderUserId(socialUser.getProviderCode(), socialUser.getProviderUserId());
 
 		Long userNo;
 
 		if (authProviderOpt.isPresent()) {
 			userNo = authProviderOpt.get().getUserNo();
 		} else {
-			if (userRepository.existsByEmail(googleUser.getEmail())) {
+			if (userRepository.existsByEmail(socialUser.getEmail())) {
 				throw new RuntimeException("Email already exists");
 			}
 
-			User newUser = User.builder().userName(googleUser.getUserName()).email(googleUser.getEmail())
+			User newUser = User.builder().userName(socialUser.getUserName()).email(socialUser.getEmail())
 					.phone("SOCIAL").enabled("1").build();
 
 			User savedUser = userRepository.save(newUser);
 
 			UserAuthProvider authProvider = UserAuthProvider.builder().userNo(savedUser.getUserNo())
-					.providerCode("GOOGLE").providerUserId(googleUser.getProviderUserId()).build();
+					.providerCode(socialUser.getProviderCode()).providerUserId(socialUser.getProviderUserId()).build();
 
 			userAuthProviderRepository.save(authProvider);
 
@@ -238,8 +226,8 @@ public class AuthServiceImpl implements AuthService {
 		var roles = userRoleRepository.findByUserNo(userNo);
 		var roleNames = roles.stream().map(UserRole::getRoleCode).toList();
 
-		AuthUserPrincipal authUser = new AuthUserPrincipal(user.getUserNo(), googleUser.getEmail(), "",
-				user.getUserName(), user.getEmail(), user.getPhone(), user.getEnabled(), roleNames);
+		AuthUserPrincipal authUser = new AuthUserPrincipal(user.getUserNo(), user.getEmail(), "", user.getUserName(),
+				user.getEmail(), user.getPhone(), user.getEnabled(), roleNames);
 
 		String accessToken = jwtProvider.generateAccessToken(authUser);
 		String refreshToken = jwtProvider.generateRefreshToken(authUser);
@@ -253,6 +241,27 @@ public class AuthServiceImpl implements AuthService {
 				.accessTokenExpiresIn(accessTokenExpiration).refreshTokenExpiresIn(refreshTokenExpiration)
 				.userNo(authUser.getUserNo()).loginId(authUser.getLoginId()).userName(authUser.getUserName())
 				.roleNames(authUser.getRoleNames()).build();
+	}
+
+	@Override
+	@Transactional
+	public LoginResponseDTO googleLogin(GoogleLoginRequestDTO request) {
+		SocialUserInfo socialUser = googleTokenVerifier.verify(request.getIdToken());
+		return socialLogin(socialUser);
+	}
+
+	@Override
+	@Transactional
+	public LoginResponseDTO kakaoLogin(KakaoLoginRequestDTO request) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	@Transactional
+	public LoginResponseDTO naverLogin(NaverLoginRequestDTO request) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }
