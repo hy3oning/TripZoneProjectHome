@@ -29,6 +29,8 @@ import com.kh.trip.security.AuthUserPrincipal;
 import com.kh.trip.security.CustomUserDetailsService;
 import com.kh.trip.security.JwtProvider;
 import com.kh.trip.security.social.GoogleTokenVerifier;
+import com.kh.trip.security.social.KakaoTokenVerifier;
+import com.kh.trip.security.social.NaverTokenVerifier;
 import com.kh.trip.security.social.SocialUserInfo;
 
 import jakarta.transaction.Transactional;
@@ -60,6 +62,10 @@ public class AuthServiceImpl implements AuthService {
 	private final UserRefreshTokenRepository userRefreshTokenRepository;
 
 	private final GoogleTokenVerifier googleTokenVerifier;
+
+	private final KakaoTokenVerifier kakaoTokenVerifier;
+
+	private final NaverTokenVerifier naverTokenVerifier;
 
 	// refresh token 만료 시간(초)
 	@Value("${jwt.refresh-token-expiration}")
@@ -253,15 +259,15 @@ public class AuthServiceImpl implements AuthService {
 	@Override
 	@Transactional
 	public LoginResponseDTO kakaoLogin(KakaoLoginRequestDTO request) {
-		// TODO Auto-generated method stub
-		return null;
+		SocialUserInfo socialUser = kakaoTokenVerifier.verify(request.getCode());
+		return socialLogin(socialUser);
 	}
 
 	@Override
 	@Transactional
 	public LoginResponseDTO naverLogin(NaverLoginRequestDTO request) {
-		// TODO Auto-generated method stub
-		return null;
+		SocialUserInfo socialUser = naverTokenVerifier.verify(request.getCode());
+		return socialLogin(socialUser);
 	}
 
 }
