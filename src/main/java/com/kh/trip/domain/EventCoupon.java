@@ -7,6 +7,8 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
@@ -29,9 +31,11 @@ public class EventCoupon extends BaseTimeEntity {
 	@Column(name = "EVENT_COUPON_NO")
 	private Long eventCouponNo;
 
-	@Column(name = "EVENT_NO", nullable = false)
-	private Long eventNo;
+	@ManyToOne // 이벤트 1개에 쿠폰 여러개 
+	@JoinColumn(name = "EVENT_NO", nullable = false)
+	private Event event;
 
-	@Column(name = "COUPON_NO", nullable = false)
-	private Long couponNo;
+	@ManyToOne // 쿠폰 한개가 여러 이벤트
+	@JoinColumn(name = "COUPON_NO", nullable = false)
+	private Coupon coupon;
 }

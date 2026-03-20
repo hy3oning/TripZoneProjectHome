@@ -1,5 +1,7 @@
 package com.kh.trip.domain;
 
+import java.time.LocalDateTime;
+
 import com.kh.trip.domain.common.BaseTimeEntity;
 import com.kh.trip.domain.enums.HostApprovalStatus;
 
@@ -10,6 +12,9 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
@@ -32,8 +37,9 @@ public class HostProfile extends BaseTimeEntity {
 	@Column(name = "HOST_NO")
 	private Long hostNo;
 
-	@Column(name = "USER_NO", nullable = false, unique = true)
-	private Long userNo;
+	@OneToOne // 유저 1명당 프로필 1개만 가능
+	@JoinColumn(name = "USER_NO", nullable = false, unique = true)
+	private User user; 
 
 	@Column(name = "BUSINESS_NAME", nullable = false, length = 100)
 	private String businessName;
@@ -49,11 +55,12 @@ public class HostProfile extends BaseTimeEntity {
 	@Column(name = "APPROVAL_STATUS", nullable = false, length = 20)
 	private HostApprovalStatus approvalStatus = HostApprovalStatus.PENDING;
 
-	@Column(name = "APPROVED_BY")
-	private Long approvedBy;
+	@ManyToOne // 여러 호스트 신청을 같은 관리자가 승인할 수 있음
+	@JoinColumn(name = "APPROVED_BY")
+	private User approvedByUser;
 
 	@Column(name = "APPROVED_AT")
-	private java.time.LocalDateTime approvedAt;
+	private LocalDateTime approvedAt;
 
 	@Column(name = "REJECT_REASON", length = 300)
 	private String rejectReason;

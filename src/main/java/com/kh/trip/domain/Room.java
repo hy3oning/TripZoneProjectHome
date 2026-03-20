@@ -10,6 +10,8 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
@@ -32,13 +34,14 @@ public class Room extends BaseTimeEntity {
 	@Column(name = "ROOM_NO")
 	private Long roomNo; // 객실 번호
 
-	@Column(name = "LODGING_NO", nullable = false)
- 	private Long lodgingNo; // 숙소 번호
+	@ManyToOne // 숙소 1개 안에 객실 여러 개
+	@JoinColumn(name = "LODGING_NO")
+ 	private Lodging lodging; // 숙소 번호
 
-	@Column(name = "ROOM_NAME", nullable = false, length = 100)
+	@Column(name = "ROOM_NAME", nullable = false, length = 200)
 	private String roomName; // 객실명
 
-	@Column(name = "ROOM_TYPE", length = 50)
+	@Column(name = "ROOM_TYPE", nullable = false, length = 50)
 	private String roomType; // 객실 유형
 
 	@Column(name = "MAX_GUEST_COUNT", nullable = false)
@@ -47,14 +50,15 @@ public class Room extends BaseTimeEntity {
 	@Column(name = "PRICE_PER_NIGHT", nullable = false)
 	private Long pricePerNight; // 1박 기준가격
 
+	@Builder.Default
 	@Column(name = "ROOM_COUNT", nullable = false)
-	private Integer roomCount; // 동일 객실 수
+	private Integer roomCount = 1; // 동일 객실 수
 
-	@Column(name = "DESCRIPTION", length = 1000)
+	@Column(name = "DESCRIPTION", length = 2000)
 	private String description; // 객실 설명
 
 	@Builder.Default
 	@Enumerated(EnumType.STRING)
 	@Column(name = "STATUS", nullable = false, length = 20)
-	private RoomStatus status = RoomStatus.ACTIVE; // 객실 상태
+	private RoomStatus status = RoomStatus.AVAILABLE; // 객실 상태
 }

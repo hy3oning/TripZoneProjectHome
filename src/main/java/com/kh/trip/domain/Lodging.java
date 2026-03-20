@@ -1,5 +1,7 @@
 package com.kh.trip.domain;
 
+import java.math.BigDecimal;
+
 import com.kh.trip.domain.common.BaseTimeEntity;
 import com.kh.trip.domain.enums.LodgingStatus;
 
@@ -10,6 +12,8 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
@@ -32,8 +36,9 @@ public class Lodging extends BaseTimeEntity {
 	@Column(name = "LODGING_NO")
 	private Long lodgingNo;
 
-	@Column(name = "HOST_NO", nullable = false)
-	private Long hostNo;
+	@ManyToOne // 호스트 1명이 숙소 여러 개를 가질 수 있음
+	@JoinColumn(name = "HOST_NO", nullable = false)
+	private HostProfile hostProfile;
 
 	@Column(name = "LODGING_NAME", nullable = false, length = 200)
 	private String lodgingName;
@@ -54,10 +59,10 @@ public class Lodging extends BaseTimeEntity {
 	private String zipCode;
 
 	@Column(name = "LATITUDE", precision = 10, scale = 7)
-	private Double latitude;
+	private BigDecimal latitude;
 
 	@Column(name = "LONGITUDE", precision = 10, scale = 7)
-	private Double longitude;
+	private BigDecimal longitude;
 
 	@Column(name = "DESCRIPTION", length = 2000)
 	private String description;

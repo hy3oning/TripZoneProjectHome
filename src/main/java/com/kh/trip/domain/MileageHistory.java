@@ -13,6 +13,8 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
@@ -35,14 +37,20 @@ public class MileageHistory extends BaseTimeEntity {
 	@Column(name = "MILEAGE_HISTORY_NO")
 	private Long mileageHistoryNo;
 
-	@Column(name = "USER_NO", nullable = false)
-	private Long userNo;
+	// 회원 1명에게 이력 여러건
+	@ManyToOne
+	@JoinColumn(name = "USER_NO", nullable = false)
+	private User user;
 
-	@Column(name = "BOOKING_NO")
-	private Long bookingNo;
+	// 예약 1건과 연결된 마일리지 이력 여러 건
+	@ManyToOne
+	@JoinColumn(name = "BOOKING_NO")
+	private Booking booking;
 
-	@Column(name = "PAYMENT_NO")
-	private Long paymentNo;
+	// 결제 1건에 마일리지 이력 여러건
+	@ManyToOne
+	@JoinColumn(name = "PAYMENT_NO")
+	private Payment payment;
 
 	@Enumerated(EnumType.STRING)
 	@Column(name = "CHANGE_TYPE", nullable = false, length = 20)

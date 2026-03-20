@@ -9,6 +9,9 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
@@ -31,19 +34,22 @@ public class Review extends BaseTimeEntity {
 	@Column(name = "REVIEW_NO")
 	private Long reviewNo;
 
-	@Column(name = "BOOKING_NO", nullable = false, unique = true)
-	private Long bookingNo;
+	@OneToOne // 예약하나에 리뷰 한개
+	@JoinColumn(name = "BOOKING_NO", nullable = false, unique = true)
+	private Booking booking;
 
-	@Column(name = "USER_NO", nullable = false)
-	private Long userNo;
+	@ManyToOne // 유저 1명이 리뷰 여러 개
+	@JoinColumn(name = "USER_NO", nullable = false)
+	private User user;
 
-	@Column(name = "LODGING_NO", nullable = false)
-	private Long lodgingNo;
+	@ManyToOne // 숙소 1개에 리뷰 여러 개
+	@JoinColumn(name = "LODGING_NO", nullable = false)
+	private Lodging lodging;
 
 	@Column(name = "RATING", nullable = false)
 	private Integer rating;
 
-	@Column(name = "CONTENT", nullable = false, length = 2000)
+	@Column(name = "CONTENT", nullable = false, length = 1000)
 	private String content;
 
 	@Column(name = "HOST_REPLY", length = 2000)

@@ -1,5 +1,6 @@
 package com.kh.trip.domain.enums;
 
 public enum RoomStatus {
-	ACTIVE,INACTIVE
+	AVAILABLE,
+	UNAVAILABLE
 }

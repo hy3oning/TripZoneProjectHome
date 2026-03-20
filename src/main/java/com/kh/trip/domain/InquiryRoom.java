@@ -14,6 +14,8 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
@@ -36,8 +38,9 @@ public class InquiryRoom extends BaseTimeEntity {
 	@Column(name = "INQUIRY_ROOM_NO")
 	private Long inquiryRoomNo;
 
-	@Column(name = "USER_NO", nullable = false)
-	private Long userNo;
+	@ManyToOne // 유저 1명이 문의방 여러개
+	@JoinColumn(name = "USER_NO", nullable = false)
+	private User user;
 
 	@Enumerated(EnumType.STRING)
 	@Column(name = "TARGET_TYPE", nullable = false, length = 20)
@@ -50,11 +53,13 @@ public class InquiryRoom extends BaseTimeEntity {
 	@Column(name = "TITLE", nullable = false, length = 200)
 	private String title;
 
-	@Column(name = "ADMIN_USER_NO")
-	private Long adminUserNo;
+	@ManyToOne // 관리자 1명이 문의방 여러개 담당
+	@JoinColumn(name = "ADMIN_USER_NO")
+	private User adminUser;
 
-	@Column(name = "LODGING_NO")
-	private Long lodgingNo;
+	@ManyToOne // 숙소 1개에 여러 문의방 가능
+	@JoinColumn(name = "LODGING_NO")
+	private Lodging lodging;
 
 	@Builder.Default
 	@Enumerated(EnumType.STRING)

@@ -13,7 +13,9 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.Lob;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
@@ -36,8 +38,9 @@ public class Payment extends BaseTimeEntity {
 	@Column(name = "PAYMENT_NO")
 	private Long paymentNo;
 
-	@Column(name = "BOOKING_NO", nullable = false, unique = true)
-	private Long bookingNo;
+	@OneToOne // 예약 1건당 결제 1건
+	@JoinColumn(name = "BOOKING_NO", nullable = false, unique = true)
+	private Booking booking;
 
 	@Column(name = "PAYMENT_ID", nullable = false, length = 100, unique = true)
 	private String paymentId;

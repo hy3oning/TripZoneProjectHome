@@ -12,6 +12,8 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
@@ -34,11 +36,13 @@ public class InquiryMessage extends BaseTimeEntity {
 	@Column(name = "MESSAGE_NO")
 	private Long messageNo;
 
-	@Column(name = "INQUIRY_ROOM_NO", nullable = false)
-	private Long inquiryRoomNo;
+	@ManyToOne // 문의방 1개에 메시지 여러개
+	@JoinColumn(name = "INQUIRY_ROOM_NO", nullable = false)
+	private InquiryRoom inquiryRoom;
 
-	@Column(name = "SENDER_USER_NO", nullable = false)
-	private Long senderUserNo;
+	@ManyToOne // 유저 1명이 메시지 여러 개
+	@JoinColumn(name = "SENDER_USER_NO", nullable = false)
+	private User senderUser;
 
 	@Enumerated(EnumType.STRING)
 	@Column(name = "SENDER_TYPE", nullable = false, length = 20)

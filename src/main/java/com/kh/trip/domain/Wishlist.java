@@ -7,6 +7,8 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
@@ -29,9 +31,11 @@ public class Wishlist extends BaseTimeEntity {
 	@Column(name = "WISHLIST_NO")
 	private Long wishlistNo;
 
-	@Column(name = "USER_NO", nullable = false)
-	private Long userNo;
+	@ManyToOne // 유저 1명이 찜 여러개
+	@JoinColumn(name = "USER_NO", nullable = false)
+	private User user;
 
-	@Column(name = "LODGING_NO", nullable = false)
-	private Long lodgingNo;
+	@ManyToOne // 숙소 1개가 여러 유저에게 찜
+	@JoinColumn(name = "LODGING_NO", nullable = false)
+	private Lodging lodging;
 }

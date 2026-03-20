@@ -12,6 +12,9 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
@@ -34,14 +37,17 @@ public class Booking extends BaseTimeEntity {
 	@Column(name = "BOOKING_NO")
 	private Long bookingNo;
 
-	@Column(name = "USER_NO", nullable = false)
-	private Long userNo;
+	@ManyToOne // 회원 1명이 예약 여러 건 가능
+	@JoinColumn(name = "USER_NO", nullable = false)
+	private User user;
 
-	@Column(name = "ROOM_NO", nullable = false)
-	private Long roomNo;
+	@ManyToOne // 객실 1개에 예약 여러건 가능
+	@JoinColumn(name = "ROOM_NO", nullable = false)
+	private Room room;
 
-	@Column(name = "USER_COUPON_NO")
-	private Long userCouponNo;
+	@OneToOne
+	@JoinColumn(name = "USER_COUPON_NO", unique = true)
+	private UserCoupon userCoupon;
 
 	@Column(name = "CHECK_IN_DATE", nullable = false)
 	private LocalDateTime checkInDate;

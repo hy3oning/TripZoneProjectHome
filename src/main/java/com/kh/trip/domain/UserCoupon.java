@@ -12,6 +12,8 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
@@ -34,11 +36,13 @@ public class UserCoupon extends BaseTimeEntity {
 	@Column(name = "USER_COUPON_NO")
 	private Long userCouponNo;
 
-	@Column(name = "USER_NO", nullable = false)
-	private Long userNo;
+	@ManyToOne // 유저 1명이 쿠폰 여러개 보유 가능
+	@JoinColumn(name = "USER_NO", nullable = false)
+	private User user;
 
-	@Column(name = "COUPON_NO", nullable = false)
-	private Long couponNo;
+	@ManyToOne // 같은 쿠폰 마스터가 여러 회원에게 발급될 수 있음
+	@JoinColumn(name = "COUPON_NO", nullable = false)
+	private Coupon coupon;
 
 	@Builder.Default
 	@Column(name = "ISSUED_AT", nullable = false)

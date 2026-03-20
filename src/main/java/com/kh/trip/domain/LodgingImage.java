@@ -7,6 +7,8 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
@@ -29,8 +31,9 @@ public class LodgingImage extends BaseTimeEntity {
 	@Column(name = "IMAGE_NO")
 	private Long imageNo;
 
-	@Column(name = "LODGING_NO", nullable = false)
-	private Long lodgingNo;
+	@ManyToOne // 숙소 1개에 이미지 여러장
+	@JoinColumn(name = "LODGING_NO", nullable = false)
+	private Lodging lodging;
 
 	@Column(name = "IMAGE_URL", nullable = false, length = 300)
 	private String imageUrl;
