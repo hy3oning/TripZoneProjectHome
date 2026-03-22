@@ -75,4 +75,8 @@ public class Booking extends BaseTimeEntity {
 
 	@Column(name = "REQUEST_MESSAGE", length = 500)
 	private String requestMessage;
+	
+	public void changeStatus(com.kh.trip.domain.enums.BookingStatus status) {
+		this.status = status;
+	}
 }

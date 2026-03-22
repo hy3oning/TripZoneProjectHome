@@ -77,4 +77,41 @@ public class Lodging extends BaseTimeEntity {
 	@Enumerated(EnumType.STRING)
 	@Column(name = "STATUS", nullable = false, length = 20)
 	private LodgingStatus status = LodgingStatus.ACTIVE;
+
+	public void changeName(String lodgingName) {
+		this.lodgingName = lodgingName;
+	}
+
+	public void changeType(String lodgingType) {
+		this.lodgingType = lodgingType;
+	}
+
+	public void changeRegion(String region) {
+		this.region = region;
+	}
+
+	public void changeStatus(LodgingStatus status) {
+		this.status = status;
+	}
+
+	public void changeAddress(String address, String detailAddress, String zipCode) {
+		this.address = address;
+		this.detailAddress = detailAddress;
+		this.zipCode = zipCode;
+	}
+
+	public void changeLocation(BigDecimal latitude, BigDecimal longitude) {
+		this.latitude = latitude;
+		this.longitude = longitude;
+	}
+
+	public void changeDescription(String description) {
+		this.description = description;
+	}
+
+	public void changeCheckTime(String checkInTime, String checkOutTime) {
+		this.checkInTime = checkInTime;
+		this.checkOutTime = checkOutTime;
+	}
+
 }

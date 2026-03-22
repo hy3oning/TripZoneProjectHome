@@ -61,4 +61,32 @@ public class Room extends BaseTimeEntity {
 	@Enumerated(EnumType.STRING)
 	@Column(name = "STATUS", nullable = false, length = 20)
 	private RoomStatus status = RoomStatus.AVAILABLE; // 객실 상태
+	
+	public void changeName(String roomName) {
+		this.roomName = roomName;
+	}
+
+	public void changeType(String roomType) {
+		this.roomType = roomType;
+	}
+
+	public void changeMaxGuestCount(Integer maxGuestCount) {
+		this.maxGuestCount = maxGuestCount;
+	}
+
+	public void changePricePerNight(Long pricePerNight) {
+		this.pricePerNight = pricePerNight;
+	}
+
+	public void changeRoomCount(Integer roomCount) {
+		this.roomCount = roomCount;
+	}
+
+	public void changeDescription(String description) {
+		this.description = description;
+	}
+
+	public void changeStatus(RoomStatus status) {
+		this.status = status;
+	}
 }
