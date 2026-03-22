@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.kh.trip.domain.Lodging;
 import com.kh.trip.domain.Room;
@@ -13,7 +14,6 @@ import com.kh.trip.dto.RoomDTO;
 import com.kh.trip.repository.LodgingRepository;
 import com.kh.trip.repository.RoomRepository;
 
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
 @Service

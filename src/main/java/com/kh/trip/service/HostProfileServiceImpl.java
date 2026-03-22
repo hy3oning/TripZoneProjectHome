@@ -3,6 +3,7 @@ package com.kh.trip.service;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.kh.trip.domain.HostProfile;
 import com.kh.trip.domain.User;
@@ -15,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class HostProfileServiceImpl implements HostProfileService {
 
 	private final HostProfileRepository hostProfileRepository;
